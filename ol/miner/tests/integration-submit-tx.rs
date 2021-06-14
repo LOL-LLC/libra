@@ -4,7 +4,7 @@
 use std::{fs, path::{Path}, process::{Command, Stdio}, thread, time::{self, Duration}};
 use libra_config::config::NodeConfig;
 use ol::config::AppCfg;
-use txs::submit_tx::TxParams;
+use txs::submit_tx::{TxParams, get_tx_params_from_swarm};
 use anyhow::{bail};
 
 #[test]
@@ -21,7 +21,10 @@ pub fn integration_submit_tx() {
     let home = dirs::home_dir().unwrap();
     let swarm_configs_path = home.join(".0L/swarm_temp/");
 
-    fs::remove_dir_all(&swarm_configs_path).unwrap();
+    match fs::remove_dir_all(&swarm_configs_path) {
+        Ok(_) => { println!("wiping swarm temp directory! {:?}", &swarm_configs_path)},
+        Err(_) => {},
+    }
 
     let node_exec = &root_source_path.join("target/debug/libra-node");
     // TODO: Assert that block_0.json is in blocks folder.
@@ -95,8 +98,9 @@ pub fn integration_submit_tx() {
             let test_timeout = Duration::from_secs(120);
             thread::sleep(test_timeout);
             
-            let tx_params = ;// TO write logic
-            let config = ;
+            // TODO: make these paths references
+            let tx_params = get_tx_params_from_swarm(swarm_configs_path.clone(), "alice".to_owned(), false).unwrap();// TO write logic
+            let config =  AppCfg::init_app_configs_swarm(swarm_configs_path.clone(), swarm_configs_path.join("0"));
 
             println!("Check node sync before disabling port");
             check_node_sync(&tx_params, &config);
@@ -107,7 +111,7 @@ pub fn integration_submit_tx() {
             let mut block_port_cmd = Command::new("iptables");
             block_port_cmd.arg("-A").arg("OUTPUT").arg("-p")
                 .arg("tcp").arg("--match").arg("multiport").arg("--dports")
-                .arg(port).arg("-j").arg("DROP");
+                .arg(port.to_string()).arg("-j").arg("DROP");
             let mut block_port_child = block_port_cmd.stdout(Stdio::inherit())
                 .stderr(Stdio::inherit())
                 .spawn()
@@ -121,7 +125,7 @@ pub fn integration_submit_tx() {
             let mut activate_port_cmd = Command::new("iptables");
             activate_port_cmd.arg("-D").arg("OUTPUT").arg("-p")
                 .arg("tcp").arg("--match").arg("multiport").arg("--dports")
-                .arg(port).arg("-j").arg("DROP");
+                .arg(port.to_string()).arg("-j").arg("DROP");
             let mut activate_port_child = activate_port_cmd.stdout(Stdio::inherit())
                 .stderr(Stdio::inherit())
                 .spawn()
