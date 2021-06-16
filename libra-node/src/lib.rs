@@ -264,6 +264,8 @@ async fn periodic_state_dump(node_config: NodeConfig, db: DbReaderWriter) {
 }
 
 pub fn setup_environment(node_config: &NodeConfig, logger: Option<Arc<Logger>>) -> LibraHandle {
+    dbg!("Setup environment");
+    
     let debug_if = setup_debug_interface(&node_config, logger);
 
     let metrics_port = node_config.debug_interface.metrics_server_port;
@@ -348,6 +350,9 @@ pub fn setup_environment(node_config: &NodeConfig, logger: Option<Arc<Logger>>) 
         // Create the endpoints to connect the Network to StateSynchronizer.
         let (state_sync_sender, state_sync_events) = network_builder
             .add_protocol_handler(state_synchronizer::network::network_endpoint_config());
+
+        dbg!("!!!!!!!!!!!!!!!!!!!");
+        dbg!(&network_id);
         state_sync_network_handles.push((
             NodeNetworkId::new(network_id.clone(), idx),
             state_sync_sender,
