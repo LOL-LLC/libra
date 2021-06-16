@@ -67,6 +67,7 @@ fn main() {
                 None, /* config dir */
                 None,
                 &validator_swarm.config,
+                // TODO: Try to change this.
                 FullnodeType::ValidatorFullnode,
             )
             .expect("Failed to configure full node swarm"),

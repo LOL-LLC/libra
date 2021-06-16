@@ -17,15 +17,17 @@ ifndef PERSONA
 PERSONA=alice
 endif
 
+BOB_LOG = ${SWARM_TEMP}/logs/1.log
 MNEM="talent sunset lizard pill fame nuclear spy noodle basket okay critic grow sleep legend hurry pitch blanket clerk impose rough degree sock insane purse"
 
 NUM_NODES = 2
 
 START_TEXT = "To run the Libra CLI client"
 SUCCESS_TEXT = "transaction executed"
+REMOVE_SUCCESS_TEXT = "The validator is not in the validator set"
 
 # test: clean swarm check-swarm stop
-test: clean swarm check-swarm leave-set
+test: clean swarm check-swarm leave-set check-leave
 
 clean:
 	rm -rf ${DATA_PATH} | true
@@ -61,3 +63,14 @@ check-swarm:
 leave-set: 
 	PERSONA=bob make -f ${MAKE_FILE} init
 	PERSONA=bob make -f ${MAKE_FILE} tx
+
+check-leave: 
+	@while [[ ${NOW} -le ${END} ]] ; do \
+			if grep -q ${REMOVE_SUCCESS_TEXT} ${BOB_LOG} ; then \
+				break; \
+			else \
+				echo . ; \
+			fi ; \
+			echo "Sleeping for 5 secs" ; \
+			sleep 5 ; \
+	done
