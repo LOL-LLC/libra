@@ -1,10 +1,11 @@
-user-create: backup user ssh 
+
+# Do this
+migrate: stop move-db backup user ssh
 	cp ~/.0L/Makefile /home/val/
 	@runuser -l  val -c 'mkdir -p ~/.0L/'
 	@runuser -l  val -c 'make path bin install template reset'
 	# TODO need to install and deps
 
-migrate: stop move-db
 
 ## do this from previous user.
 stop:
