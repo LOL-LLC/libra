@@ -1,5 +1,7 @@
 //! `restore-cmd` subcommand
 
+use std::process::exit;
+
 use abscissa_core::{Command, Options, Runnable};
 use crate::mgmt;
 
@@ -23,7 +25,10 @@ impl Runnable for RestoreCmd {
     fn run(&self) {
         match mgmt::restore::fast_forward_db(self.verbose, self.epoch) {
             Ok(_) => {},
-            Err(e) => println!("ERROR: could not complete db restore, message: {:?}", e),
+            Err(e) => {
+              println!("ERROR: could not complete db restore, message: {:?}", e);
+              exit(1);
+            },
         };
     }
 }
