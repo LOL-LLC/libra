@@ -387,6 +387,7 @@ module ValidatorConfig {
         &config_ref.validator_network_addresses
     }
 
+
     spec module {} // Switch documentation context to module level.
 
     spec module {

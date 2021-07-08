@@ -15,6 +15,7 @@ address 0x1 {
     use 0x1::Testnet;
     use 0x1::Vector;
     use 0x1::FullnodeState;
+
     // resource for tracking the universe of accounts that have submitted a mined proof correctly, with the epoch number.
     resource struct ValidatorUniverse {
         validators: vector<address>
