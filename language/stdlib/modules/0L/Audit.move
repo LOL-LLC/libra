@@ -6,7 +6,7 @@ module Audit {
   use 0x1::AutoPay2;
   use 0x1::MinerState;
 
-  public fun config_audit(val: address): bool {
+  public fun val_audit_passing(val: address): bool {
     // has valid configs
     if (!ValidatorConfig::is_valid(val)) return false;
     // has operator account set to another address

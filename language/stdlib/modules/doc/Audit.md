@@ -5,7 +5,7 @@
 
 
 
--  [Function `config_audit`](#0x1_Audit_config_audit)
+-  [Function `val_audit_passing`](#0x1_Audit_val_audit_passing)
 
 
 <pre><code><b>use</b> <a href="AutoPay.md#0x1_AutoPay2">0x1::AutoPay2</a>;
@@ -17,13 +17,13 @@
 
 
 
-<a name="0x1_Audit_config_audit"></a>
+<a name="0x1_Audit_val_audit_passing"></a>
 
-## Function `config_audit`
+## Function `val_audit_passing`
 
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="Audit.md#0x1_Audit_config_audit">config_audit</a>(val: address): bool
+<pre><code><b>public</b> <b>fun</b> <a href="Audit.md#0x1_Audit_val_audit_passing">val_audit_passing</a>(val: address): bool
 </code></pre>
 
 
@@ -32,7 +32,7 @@
 <summary>Implementation</summary>
 
 
-<pre><code><b>public</b> <b>fun</b> <a href="Audit.md#0x1_Audit_config_audit">config_audit</a>(val: address): bool {
+<pre><code><b>public</b> <b>fun</b> <a href="Audit.md#0x1_Audit_val_audit_passing">val_audit_passing</a>(val: address): bool {
   // has valid configs
   <b>if</b> (!<a href="ValidatorConfig.md#0x1_ValidatorConfig_is_valid">ValidatorConfig::is_valid</a>(val)) <b>return</b> <b>false</b>;
   // has operator account set <b>to</b> another address
