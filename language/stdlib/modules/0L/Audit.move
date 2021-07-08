@@ -4,7 +4,6 @@ module Audit {
   use 0x1::LibraAccount;
   use 0x1::GAS::GAS;
   use 0x1::AutoPay2;
-  // use 0x1::Vector;
   use 0x1::MinerState;
 
   public fun config_audit(val: address): bool {
@@ -15,13 +14,14 @@ module Audit {
     if ( oper == val) return false;
     // operator account has balance
     if (LibraAccount::balance<GAS>(oper) < 50000) return false;
-    // TODO: has network settings for validator
-    // if (Vector::length<u8>(&ValidatorConfig::get_val_network(val)) < 1) return false;
+
     // has autopay enabled
     if (!AutoPay2::is_enabled(val)) return false;
     // has mining state
     if (!MinerState::is_init(val)) return false;
+    // TODO: has network settings for validator
     // TBD: is a SlowWallet
+
     true
   }
 }
