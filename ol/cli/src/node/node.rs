@@ -163,14 +163,21 @@ impl Node {
     pub fn is_in_validator_set(&self) -> bool {
         match &self.chain_state {
             Some(s) => {
+                dbg!("debug valset - accountState ok");
                 for v in s.get_validator_set().unwrap().unwrap().payload().iter() {
+                    dbg!("debug valset - loop");
+                    dbg!(&v.account_address().to_vec());
+                    dbg!(&self.app_conf.profile.account.to_vec());
                     if v.account_address().to_vec() == self.app_conf.profile.account.to_vec() {
+                        dbg!("debug valset - account in valset");
                         return true;
                     }
                 }
+                dbg!("debug valset - no match");
                 false
             }
             None => {
+                dbg!("debug valset - accountState NOK");
                 false
             }
         }
