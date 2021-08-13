@@ -1,7 +1,6 @@
 //! read-archive
 
-
-use anyhow::{Result};
+use anyhow::Result;
 use backup_cli::{
     backup_types::state_snapshot::manifest::StateSnapshotBackup,
     storage::{FileHandle, FileHandleRef},
@@ -9,13 +8,8 @@ use backup_cli::{
 };
 use libra_crypto::HashValue;
 use libra_types::account_state_blob::AccountStateBlob;
-
-
-
-
 use std::path::PathBuf;
 use tokio::{fs::OpenOptions, io::AsyncRead};
-
 
 ////// SNAPSHOT FILE IO //////
 /// read snapshot manifest file into object
@@ -24,7 +18,6 @@ pub fn read_from_json(path: &PathBuf) -> Result<StateSnapshotBackup> {
     let map: StateSnapshotBackup = serde_json::from_str(&config)?;
     Ok(map)
 }
-
 
 /// parse each chunk of a state snapshot manifest
 pub async fn read_account_state_chunk(

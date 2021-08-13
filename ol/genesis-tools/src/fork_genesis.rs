@@ -29,7 +29,7 @@ pub async fn make_recovery_genesis(
     append: bool,
 ) -> Result<(), Error> {
     //TODO: have option to "swarmify" this so that the authkey and network addresses.
-   
+
     // get the legacy data from archive
     let legacy = archive_into_recovery(&archive_path).await?;
     // get consensus accounts
@@ -154,7 +154,9 @@ pub fn migrate_account(legacy: &LegacyRecovery) -> Result<WriteSetMut, Error> {
     // System state to recover.
     // Community Wallets
     if let Some(w) = &legacy.comm_wallet {
-        let new = CommunityWalletsResource { list: w.list.clone() };
+        let new = CommunityWalletsResource {
+            list: w.list.clone(),
+        };
         write_set_mut.push((
             AccessPath::new(account, CommunityWalletsResource::resource_path()),
             WriteOp::Value(lcs::to_bytes(&new).unwrap()),
@@ -188,9 +190,9 @@ pub fn total_coin_value_restore(
     total_value: u128,
 ) -> Result<WriteSetMut, Error> {
     let mut write_set_mut = WriteSetMut::new(vec![]);
-    let sys_legacy = legacy_vec.iter().find(|&a| {
-        a.account == Some(AccountAddress::ZERO)
-    });
+    let sys_legacy = legacy_vec
+        .iter()
+        .find(|&a| a.account == Some(AccountAddress::ZERO));
 
     match sys_legacy {
         Some(legacy) => {
@@ -212,13 +214,12 @@ pub fn total_coin_value_restore(
                     exchange_rate_update_events: c.exchange_rate_update_events.to_owned(),
                 };
 
-                let access_path = CurrencyInfoResource::resource_path_for(Identifier::new("GAS".to_owned()).unwrap());
-                write_set_mut.push((
-                    access_path,
-                    WriteOp::Value(lcs::to_bytes(&new).unwrap()),
-                ));
+                let access_path = CurrencyInfoResource::resource_path_for(
+                    Identifier::new("GAS".to_owned()).unwrap(),
+                );
+                write_set_mut.push((access_path, WriteOp::Value(lcs::to_bytes(&new).unwrap())));
 
-                return Ok(write_set_mut)
+                return Ok(write_set_mut);
             }
             bail!("no currency info struct found!")
         }

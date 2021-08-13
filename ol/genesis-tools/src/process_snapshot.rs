@@ -1,11 +1,18 @@
-//! read-archive
+//! process-snapshot
 
-use crate::{read_snapshot::{self}, recover::{accounts_into_recovery, LegacyRecovery}};
-use anyhow::{bail, Error, Result};
-use backup_cli::{
-    backup_types::state_snapshot::manifest::StateSnapshotBackup,
+use crate::{
+    read_snapshot::{self},
+    recover::{accounts_into_recovery, LegacyRecovery},
 };
-use libra_types::{access_path::AccessPath, account_config::AccountResource, account_state::AccountState, account_state_blob::AccountStateBlob, write_set::{WriteOp, WriteSetMut}};
+use anyhow::{bail, Error, Result};
+use backup_cli::backup_types::state_snapshot::manifest::StateSnapshotBackup;
+use libra_types::{
+    access_path::AccessPath,
+    account_config::AccountResource,
+    account_state::AccountState,
+    account_state_blob::AccountStateBlob,
+    write_set::{WriteOp, WriteSetMut},
+};
 use move_core_types::move_resource::MoveResource;
 use ol_fixtures::get_persona_mnem;
 use ol_keys::wallet::get_account_from_mnem;
@@ -131,10 +138,7 @@ pub fn merge_writeset(mut left: WriteSetMut, right: WriteSetMut) -> Result<Write
 
 #[test]
 pub fn test_accounts_into_recovery() {
-    use libra_types::{
-      validator_config::ValidatorConfigResource,
-      account_config::BalanceResource
-    };
+    use libra_types::{account_config::BalanceResource, validator_config::ValidatorConfigResource};
     use move_core_types::move_resource::MoveResource;
     use ol_types::miner_state::MinerStateResource;
 
