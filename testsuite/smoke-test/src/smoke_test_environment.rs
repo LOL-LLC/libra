@@ -29,7 +29,7 @@ impl SmokeTestEnvironment {
             num_validators,
             None,
             Some(template),
-            None,
+            None, //////// 0L ////////
         )
         .unwrap();
 
