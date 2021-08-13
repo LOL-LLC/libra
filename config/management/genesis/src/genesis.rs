@@ -18,7 +18,7 @@ use std::{
     path::PathBuf,
 };
 use structopt::StructOpt;
-use vm_genesis::{GenesisMiningProof, OperatorAssignment, OperatorRegistration};
+use vm_genesis::{OperatorAssignment, OperatorRegistration, GenesisMiningProof};
 
 /// Note, it is implicitly expected that the storage supports
 /// a namespace but one has not been set.

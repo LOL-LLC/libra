@@ -16,8 +16,6 @@ use libra_temppath::TempPath;
 use libra_types::{
     chain_id::ChainId,
     waypoint::Waypoint,
-    // transaction::{ChangeSet, Transaction, WriteSetPayload},
-    // write_set::WriteSetMut
 };
 use std::path::{Path, PathBuf};
 
@@ -34,7 +32,7 @@ pub struct ValidatorBuilder<T: AsRef<Path>> {
     randomize_first_validator_ports: bool,
     swarm_path: T,
     template: NodeConfig,
-    genesis_blob_path: Option<PathBuf>,
+    genesis_blob_path: Option<PathBuf>, //////// 0L ////////
 }
 
 impl<T: AsRef<Path>> ValidatorBuilder<T> {
@@ -42,7 +40,7 @@ impl<T: AsRef<Path>> ValidatorBuilder<T> {
         num_validators: usize,
         template: NodeConfig,
         swarm_path: T,
-        genesis_blob_path: Option<PathBuf>,
+        genesis_blob_path: Option<PathBuf>, //////// 0L ////////
     ) -> Self {
         Self {
             storage_helper: StorageHelper::new(),
@@ -227,25 +225,6 @@ impl<T: AsRef<Path>> ValidatorBuilder<T> {
 
         let backend = self.secure_backend(&local_ns, "safety-rules");
         config.base.waypoint = WaypointConfig::FromStorage(backend);
-
-        // match genesis {
-        //     Transaction::GenesisTransaction(write_set_payload) => {
-        //         match write_set_payload {
-        //             WriteSetPayload::Direct(change_set) => {
-        //                 for write_set_item in change_set.write_set() {
-        //                     println!("Access path: {}", write_set_item.0);
-        //                 }
-        //             },
-        //             WriteSetPayload::Script{execute_as, script} => {
-        //                 println!("Writeset script");
-        //             }
-        //         }
-        //     }, Transaction::BlockMetadata(_data) => {
-        //         println!("BlockMetadata");
-        //     }, Transaction::UserTransaction(_data) => {
-        //         println!("UserTransaction");
-        //     }
-        // }
         config.execution.genesis = Some(genesis);
         config.execution.genesis_file_location = PathBuf::from("");
     }
@@ -279,6 +258,7 @@ impl<T: AsRef<Path>> BuildSwarm for ValidatorBuilder<T> {
 
         let waypoint = self
             .storage_helper
+            //////// 0L ////////
             .create_waypoint(ChainId::test(), &self.genesis_blob_path)
             .unwrap();
         // Create genesis and waypoint

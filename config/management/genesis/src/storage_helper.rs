@@ -307,6 +307,7 @@ impl StorageHelper {
       .unwrap();
   }
 
+  //////// 0L ////////
   pub fn create_waypoint(&self, chain_id: ChainId, genesis_blob_path: &Option<PathBuf>) -> Result<Waypoint, Error> {
     let args = match genesis_blob_path {
       Some(path) =>{
@@ -389,6 +390,7 @@ impl StorageHelper {
     command.insert_waypoint()
   }
 
+  //////// 0L ////////
   pub fn genesis(&self, chain_id: ChainId, genesis_path: &Path, genesis_blob_path: &Option<PathBuf>) -> Result<Transaction, Error> {
     let args = match genesis_blob_path {
       Some(path) => {

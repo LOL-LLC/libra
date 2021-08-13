@@ -6,7 +6,7 @@ use std::path::PathBuf;
 use executor::db_bootstrapper;
 use libra_management::{config::ConfigPath, error::Error, secure_backend::SharedBackend};
 use libra_temppath::TempPath;
-use libra_types::{chain_id::ChainId, transaction::Transaction, waypoint::Waypoint};
+use libra_types::{chain_id::ChainId, waypoint::Waypoint, transaction::Transaction};
 use libra_vm::LibraVM;
 use libradb::LibraDB;
 use storage_interface::DbReaderWriter;
