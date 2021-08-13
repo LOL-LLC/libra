@@ -38,3 +38,6 @@ libra-network-address = { path = "../../network/network-address", version = "0.1
 
 [features]
 fuzzing = ["libradb/fuzzing"]
+
+[dev-dependencies]
+tokio-test = "*"

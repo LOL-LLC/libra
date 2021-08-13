@@ -28,6 +28,8 @@ pub async fn make_recovery_genesis(
     archive_path: PathBuf,
     append: bool,
 ) -> Result<(), Error> {
+    //TODO: have option to "swarmify" this so that the authkey and network addresses.
+   
     // get the legacy data from archive
     let legacy = archive_into_recovery(&archive_path).await?;
     // get consensus accounts

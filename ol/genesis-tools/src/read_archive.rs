@@ -57,27 +57,18 @@ use storage_interface::DbReaderWriter;
 use crate::generate_genesis;
 use crate::recover::{accounts_into_recovery, LegacyRecovery};
 
-fn get_runtime() -> (Runtime, u16) {
-    let port = get_available_port();
-    let path = TempPath::new();
-    let rt = start_backup_service(
-        SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), port),
-        Arc::new(LibraDB::new_for_test(&path)),
-    );
-    (rt, port)
-}
 
 async fn open_for_read(file_handle: &FileHandleRef) -> Result<Box<dyn AsyncRead + Send + Unpin>> {
     let file = OpenOptions::new().read(true).open(file_handle).await?;
     Ok(Box::new(file))
 }
 
-fn read_from_file(path: &str) -> Result<Vec<u8>> {
-    let mut data = Vec::<u8>::new();
-    let mut f = File::open(path).expect("Unable to open file");
-    f.read_to_end(&mut data).expect("Unable to read data");
-    Ok(data)
-}
+// fn read_from_file(path: &str) -> Result<Vec<u8>> {
+//     let mut data = Vec::<u8>::new();
+//     let mut f = File::open(path).expect("Unable to open file");
+//     f.read_to_end(&mut data).expect("Unable to read data");
+//     Ok(data)
+// }
 
 fn read_from_json(path: &PathBuf) -> Result<StateSnapshotBackup> {
     let config = std::fs::read_to_string(path)?;
@@ -85,10 +76,10 @@ fn read_from_json(path: &PathBuf) -> Result<StateSnapshotBackup> {
     Ok(map)
 }
 
-fn load_lcs_file<T: DeserializeOwned>(file_handle: &str) -> Result<T> {
-    let x = read_from_file(&file_handle)?;
-    Ok(lcs::from_bytes(&x)?)
-}
+// fn load_lcs_file<T: DeserializeOwned>(file_handle: &str) -> Result<T> {
+//     let x = read_from_file(&file_handle)?;
+//     Ok(lcs::from_bytes(&x)?)
+// }
 
 async fn read_account_state_chunk(
     file_handle: FileHandle,
@@ -232,102 +223,113 @@ pub fn merge_writeset(mut left: WriteSetMut, right: WriteSetMut) -> Result<Write
     Ok(left)
 }
 
-/// Tokio async parsing of state snapshot into blob
-async fn run_impl(manifest: StateSnapshotBackup, path: &PathBuf) -> Result<()> {
-    // parse AccountStateBlob from chunks of the archive
-    let mut account_state_blobs: Vec<AccountStateBlob> = Vec::new();
-    for chunk in manifest.chunks {
-        let blobs = read_account_state_chunk(chunk.blobs, path).await?;
-        // let proof = load_lcs_file(&chunk.proof)?;
-        println!("{:?}", blobs);
-        // TODO(Venkat) -> Here's the blob
-        // println!("{:?}", proof);
-        for (_key, blob) in blobs {
-            account_state_blobs.push(blob)
-        }
-    }
+// /// Tokio async parsing of state snapshot into blob
+// async fn run_impl(manifest: StateSnapshotBackup, path: &PathBuf) -> Result<()> {
+//     // parse AccountStateBlob from chunks of the archive
+//     let mut account_state_blobs: Vec<AccountStateBlob> = Vec::new();
+//     for chunk in manifest.chunks {
+//         let blobs = read_account_state_chunk(chunk.blobs, path).await?;
+//         // let proof = load_lcs_file(&chunk.proof)?;
+//         println!("{:?}", blobs);
+//         // TODO(Venkat) -> Here's the blob
+//         // println!("{:?}", proof);
+//         for (_key, blob) in blobs {
+//             account_state_blobs.push(blob)
+//         }
+//     }
 
-    let genesis = vm_genesis::test_genesis_change_set_and_validators(Some(1));
-    let genesis_txn = Transaction::GenesisTransaction(WriteSetPayload::Direct(genesis.0));
-    let tmp_dir = TempPath::new();
-    let db_rw = DbReaderWriter::new(LibraDB::new_for_test(&tmp_dir));
+//     let genesis = vm_genesis::test_genesis_change_set_and_validators(Some(1));
+//     let genesis_txn = Transaction::GenesisTransaction(WriteSetPayload::Direct(genesis.0));
+//     let tmp_dir = TempPath::new();
+//     let db_rw = DbReaderWriter::new(LibraDB::new_for_test(&tmp_dir));
 
-    // Executor won't be able to boot on empty db due to lack of StartupInfo.
-    assert!(db_rw.reader.get_startup_info().unwrap().is_none());
+//     // Executor won't be able to boot on empty db due to lack of StartupInfo.
+//     assert!(db_rw.reader.get_startup_info().unwrap().is_none());
 
-    // Bootstrap empty DB.
-    let waypoint = generate_waypoint::<LibraVM>(&db_rw, &genesis_txn).expect("Should not fail.");
-    maybe_bootstrap::<LibraVM>(&db_rw, &genesis_txn, waypoint).unwrap();
-    let startup_info = db_rw
-        .reader
-        .get_startup_info()
-        .expect("Should not fail.")
-        .expect("Should not be None.");
-    assert_eq!(
-        Waypoint::new_epoch_boundary(startup_info.latest_ledger_info.ledger_info()).unwrap(),
-        waypoint
-    );
-    let (li, epoch_change_proof, _) = db_rw.reader.get_state_proof(waypoint.version()).unwrap();
-    let trusted_state = TrustedState::from(waypoint);
-    trusted_state
-        .verify_and_ratchet(&li, &epoch_change_proof)
-        .unwrap();
+//     // Bootstrap empty DB.
+//     let waypoint = generate_waypoint::<LibraVM>(&db_rw, &genesis_txn).expect("Should not fail.");
+//     maybe_bootstrap::<LibraVM>(&db_rw, &genesis_txn, waypoint).unwrap();
+//     let startup_info = db_rw
+//         .reader
+//         .get_startup_info()
+//         .expect("Should not fail.")
+//         .expect("Should not be None.");
+//     assert_eq!(
+//         Waypoint::new_epoch_boundary(startup_info.latest_ledger_info.ledger_info()).unwrap(),
+//         waypoint
+//     );
+//     let (li, epoch_change_proof, _) = db_rw.reader.get_state_proof(waypoint.version()).unwrap();
+//     let trusted_state = TrustedState::from(waypoint);
+//     trusted_state
+//         .verify_and_ratchet(&li, &epoch_change_proof)
+//         .unwrap();
 
-    // `maybe_bootstrap()` does nothing on non-empty DB.
-    assert!(!maybe_bootstrap::<LibraVM>(&db_rw, &genesis_txn, waypoint).unwrap());
+//     // `maybe_bootstrap()` does nothing on non-empty DB.
+//     assert!(!maybe_bootstrap::<LibraVM>(&db_rw, &genesis_txn, waypoint).unwrap());
 
-    let genesis_txn =
-        generate_genesis::generate_genesis_from_snapshot(&account_state_blobs, &db_rw).unwrap();
-    generate_genesis::write_genesis_blob(genesis_txn)?;
-    generate_genesis::test_genesis_from_blob(&account_state_blobs, db_rw)?;
-    Ok(())
-}
+//     let genesis_txn =
+//         generate_genesis::generate_genesis_from_snapshot(&account_state_blobs, &db_rw).unwrap();
+//     generate_genesis::write_genesis_blob(genesis_txn)?;
+//     generate_genesis::test_genesis_from_blob(&account_state_blobs, db_rw)?;
+//     Ok(())
+// }
 
-/// given a path to state archive, produce a genesis.blob
-pub fn genesis_from_path(path: PathBuf) -> Result<()> {
-    let path_man = path.clone().join("state.manifest");
-    dbg!(&path_man);
-    let path_proof = path.join("state.proof");
-    dbg!(&path_proof);
+// /// given a path to state archive, produce a genesis.blob
+// pub fn genesis_from_path(path: PathBuf) -> Result<()> {
+//     let path_man = path.clone().join("state.manifest");
+//     dbg!(&path_man);
+//     let path_proof = path.join("state.proof");
+//     dbg!(&path_proof);
 
-    let manifest = read_from_json(&path_man).unwrap();
+//     let manifest = read_from_json(&path_man).unwrap();
 
-    // Tokio runtime
-    let (mut rt, _port) = get_runtime();
+//     // Tokio runtime
+//     let (mut rt, _port) = get_runtime();
 
-    let (txn_info_with_proof, li): (TransactionInfoWithProof, LedgerInfoWithSignatures) =
-        load_lcs_file(&path_proof.into_os_string().into_string().unwrap()).unwrap();
+//     let (txn_info_with_proof, li): (TransactionInfoWithProof, LedgerInfoWithSignatures) =
+//         load_lcs_file(&path_proof.into_os_string().into_string().unwrap()).unwrap();
 
-    txn_info_with_proof.verify(li.ledger_info(), manifest.version)?;
+//     txn_info_with_proof.verify(li.ledger_info(), manifest.version)?;
 
-    ensure!(
-        txn_info_with_proof.transaction_info().state_root_hash() == manifest.root_hash,
-        "Root hash mismatch with that in proof. root hash: {}, expected: {}",
-        manifest.root_hash,
-        txn_info_with_proof.transaction_info().state_root_hash(),
-    );
+//     ensure!(
+//         txn_info_with_proof.transaction_info().state_root_hash() == manifest.root_hash,
+//         "Root hash mismatch with that in proof. root hash: {}, expected: {}",
+//         manifest.root_hash,
+//         txn_info_with_proof.transaction_info().state_root_hash(),
+//     );
 
-    let future = run_impl(manifest, &path); // Nothing is printed
-    rt.block_on(future)?;
+//     let future = run_impl(manifest, &path); // Nothing is printed
+//     rt.block_on(future)?;
 
-    Ok(())
-}
+//     Ok(())
+// }
 
-#[cfg(test)]
-#[test]
-fn test_main() -> Result<()> {
-    use std::path::Path;
+// #[cfg(test)]
+// #[test]
+// fn test_main() -> Result<()> {
+//     use std::path::Path;
 
-    let path = env!("CARGO_MANIFEST_DIR");
-    let buf = Path::new(path)
-        .parent()
-        .unwrap()
-        .join("fixtures/state-snapshot/194/state_ver_74694920.0889/");
-    genesis_from_path(buf)
-}
+//     let path = env!("CARGO_MANIFEST_DIR");
+//     let buf = Path::new(path)
+//         .parent()
+//         .unwrap()
+//         .join("fixtures/state-snapshot/194/state_ver_74694920.0889/");
+//     genesis_from_path(buf)
+// }
 
 #[test]
 pub fn test_accounts_into_recovery() {
+    // fn get_runtime() -> (Runtime, u16) {
+    //     let port = get_available_port();
+    //     let path = TempPath::new();
+    //     let rt = start_backup_service(
+    //         SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), port),
+    //         Arc::new(LibraDB::new_for_test(&path)),
+    //     );
+    //     (rt, port)
+    // }
+
+
     use std::path::Path;
 
     let path = env!("CARGO_MANIFEST_DIR");
@@ -339,9 +341,8 @@ pub fn test_accounts_into_recovery() {
     println!("Running.....");
     let backup = read_from_json(&path_man).unwrap();
 
-    let (mut rt, _port) = get_runtime();
-    let account_blobs_futures = accounts_from_snapshot_backup(backup);
-    let account_blobs = rt.block_on(account_blobs_futures).unwrap();
+    let account_blobs_futures = accounts_from_snapshot_backup(backup, &path_man);
+    let account_blobs = tokio_test::block_on(account_blobs_futures).unwrap();
     let genesis_recovery_list = accounts_into_recovery(&account_blobs).unwrap();
     println!("Total GenesisRecovery objects: {}", &genesis_recovery_list.len());
     for blob in account_blobs {
@@ -349,7 +350,7 @@ pub fn test_accounts_into_recovery() {
         if let Some(address) = account_state.get_account_address().unwrap() {
             let mut address_processed = false;
             for gr in &genesis_recovery_list {
-                if gr.address != address {
+                if gr.account != Some(address) {
                     continue;
                 }
                 // iterate over all the account's resources\
@@ -359,7 +360,7 @@ pub fn test_accounts_into_recovery() {
                         match &gr.balance {
                             Some(balance) => {
                                 if lcs::to_bytes(&balance).unwrap() != v.clone() {
-                                    panic!("Balance resource not found in GenesisRecovery object: {}", gr.address);
+                                    panic!("Balance resource not found in GenesisRecovery object: {:?}", gr.account);
                                 }
                             }, None => {
                                 panic!("Balance not found");
@@ -371,7 +372,7 @@ pub fn test_accounts_into_recovery() {
                         match &gr.val_cfg {
                             Some(val_cfg) => {
                                 if lcs::to_bytes(&val_cfg).unwrap() != v.clone() {
-                                    panic!("ValidatorConfigResource not found in GenesisRecovery object: {}", gr.address);
+                                    panic!("ValidatorConfigResource not found in GenesisRecovery object: {:?}", gr.account);
                                 }
                             }, None => {
                                 panic!("ValidatorConfigResource not found");
@@ -382,7 +383,7 @@ pub fn test_accounts_into_recovery() {
                         match &gr.miner_state {
                             Some(miner_state) => {
                                 if lcs::to_bytes(&miner_state).unwrap() != v.clone() {
-                                    panic!("MinerStateResource not found in GenesisRecovery object: {}", gr.address);
+                                    panic!("MinerStateResource not found in GenesisRecovery object: {:?}", gr.account);
                                 }
                             }, None => {
                                 panic!("MinerStateResource not found");

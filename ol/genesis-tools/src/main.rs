@@ -32,13 +32,19 @@ async fn main() -> Result<()> {
         if let Some(g_path) = opts.output_path {
             if let Some(s_path) = opts.snapshot {
                 // create a genesis file from archive file
-                make_recovery_genesis(g_path, s_path, !opts.debug_baseline).await?;
+                make_recovery_genesis(
+                  g_path, 
+                  s_path, 
+                  !opts.debug_baseline
+                ).await?;
                 return Ok(());
             } else {
                 println!("ERROR: must provide a path with --snapshot, exiting.");
                 exit(1);
             }
         }
+        println!("ERROR: must provide --output-path for genesis.blob, exiting.");
+        exit(1);
     } else if let Some(_a_path) = opts.recover {
         // just create recovery file
 
@@ -50,7 +56,7 @@ async fn main() -> Result<()> {
     } else if opts.swarm {
         // Write swarm genesis from snapshot, for CI and simulation
         if let Some(archive_path) = opts.snapshot {
-            make_swarm_genesis(opts.genesis.unwrap(), archive_path).await?;
+            make_swarm_genesis(opts.output_path.unwrap(), archive_path).await?;
             return Ok(());
         } else {
             println!("ERROR: must provide a path with --snapshot, exiting.");
