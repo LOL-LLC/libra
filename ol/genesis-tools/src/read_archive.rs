@@ -8,7 +8,8 @@ use backup_cli::{
     utils::read_record_bytes::ReadRecordBytes,
 };
 use libra_crypto::HashValue;
-use libra_types::{access_path::AccessPath, account_state::AccountState, account_state_blob::AccountStateBlob, write_set::{WriteOp, WriteSetMut}};
+use libra_types::{access_path::AccessPath, account_config::AccountResource, account_state::AccountState, account_state_blob::AccountStateBlob, write_set::{WriteOp, WriteSetMut}};
+use move_core_types::move_resource::MoveResource;
 use ol_fixtures::get_persona_mnem;
 use ol_keys::wallet::get_account_from_mnem;
 use std::convert::TryFrom;

@@ -5,7 +5,7 @@ use libra_types::{
   account_address::AccountAddress, account_state::AccountState, waypoint::Waypoint,
   validators_stats::ValidatorsStatsResource
 };
-use ol_types::{validator_config::ValidatorConfigView, autopay::AutoPayView};
+use ol_types::{validator_config::OLValidatorConfigView, autopay::AutoPayView};
 
 use serde::{Deserialize, Serialize};
 use std::{convert::TryFrom, collections::HashMap};
@@ -75,7 +75,7 @@ pub struct ValidatorView {
   /// total block propositions in current epoch
   pub prop_count_in_epoch: u64,
   /// validator config in the chain
-  pub validator_config: Option<ValidatorConfigView>,
+  pub validator_config: Option<OLValidatorConfigView>,
   /// autopay instructions
   pub autopay: Option<AutoPayView>,
 }

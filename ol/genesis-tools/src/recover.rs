@@ -2,9 +2,20 @@
 
 use anyhow::{bail, Error};
 use libra_network_address::NetworkAddress;
-use libra_types::{account_address::AccountAddress, account_config::{BalanceResource, CurrencyInfoResource}, account_state::AccountState, account_state_blob::AccountStateBlob, on_chain_config::ConfigurationResource, transaction::authenticator::AuthenticationKey, validator_config::{ValidatorConfigResource, ValidatorOperatorConfigResource}};
+use libra_types::{
+    account_address::AccountAddress,
+    account_config::{BalanceResource, CurrencyInfoResource},
+    account_state::AccountState,
+    account_state_blob::AccountStateBlob,
+    on_chain_config::ConfigurationResource,
+    transaction::authenticator::AuthenticationKey,
+    validator_config::{ValidatorConfigResource, ValidatorOperatorConfigResource},
+};
 use move_core_types::{identifier::Identifier, move_resource::MoveResource};
-use ol_types::{autopay::AutoPayResource, fullnode_counter::FullnodeCounterResource, miner_state::MinerStateResource, wallet::CommunityWalletsResource};
+use ol_types::{
+    autopay::AutoPayResource, fullnode_counter::FullnodeCounterResource,
+    miner_state::MinerStateResource, wallet::CommunityWalletsResource,
+};
 use serde::{Deserialize, Serialize};
 use std::{convert::TryFrom, fs, io::Write, path::PathBuf};
 use vm_genesis::{OperRecover, ValRecover};
@@ -99,8 +110,6 @@ pub fn accounts_into_recovery(
     Ok(to_recover)
 }
 
-
-
 /// create a recovery struct from an account state.
 pub fn parse_recovery(state: &AccountState) -> Result<LegacyRecovery, Error> {
     let mut l = LegacyRecovery {
@@ -177,7 +186,12 @@ pub fn parse_recovery(state: &AccountState) -> Result<LegacyRecovery, Error> {
                     l.comm_wallet = lcs::from_bytes(v).ok();
                 } else if k == &FullnodeCounterResource::resource_path() {
                     l.fullnode_counter = lcs::from_bytes(v).ok();
-                } else if k == &CurrencyInfoResource::resource_path_for(Identifier::new("GAS".to_owned()).unwrap()).path {
+                } else if k
+                    == &CurrencyInfoResource::resource_path_for(
+                        Identifier::new("GAS".to_owned()).unwrap(),
+                    )
+                    .path
+                {
                     l.currency_info = lcs::from_bytes(v).ok();
                 }
             }

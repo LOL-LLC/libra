@@ -7,7 +7,7 @@ use libra_types::{account_state::AccountState, event::{EventHandle, EventKey}, t
 use resource_viewer::{AnnotatedAccountStateBlob, MoveValueAnnotator, NullStateView};
 use serde::{Deserialize, Serialize};
 use std::{convert::TryFrom};
-use ol_types::{autopay::{AutoPayResource, AutoPayView}, validator_config::{ValidatorConfigResource, ValidatorConfigView}};
+use ol_types::{autopay::{AutoPayResource, AutoPayView}, validator_config::{OLValidatorConfigResource, OLValidatorConfigView}};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 /// information on the owner account of this node.
@@ -114,11 +114,11 @@ impl Node {
     }
 
     /// Get validator config view
-    pub fn get_validator_config(&mut self, address: AccountAddress) -> Option<ValidatorConfigView> {
+    pub fn get_validator_config(&mut self, address: AccountAddress) -> Option<OLValidatorConfigView> {
         let state = self.get_account_state(address);
         match state {
-            Ok(state) => match state.get_resource::<ValidatorConfigResource>(
-                ValidatorConfigResource::resource_path().as_slice()
+            Ok(state) => match state.get_resource::<OLValidatorConfigResource>(
+                OLValidatorConfigResource::resource_path().as_slice()
             ) {
                 Ok(Some(res)) => {
                     let mut view = res.get_view();
