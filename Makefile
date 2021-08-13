@@ -46,8 +46,6 @@ endif
 
 BINS= db-backup db-backup-verify db-restore libra-node miner ol txs stdlib
 
-
-
 ##### DEPENDENCIES #####
 deps:
 	. ./ol/util/setup.sh
@@ -459,7 +457,8 @@ fork-backup:
 
 # Make genesis file
 fork-genesis:
-		cargo run -p ol-genesis-tools -- --genesis ${DATA_PATH}/genesis_from_snapshot.blob --snapshot ${SOURCE}/ol/devnet/snapshot/state_ver*
+		cargo run -p ol-genesis-tools -- --fork --output-path ${DATA_PATH}/genesis_from_snapshot.blob --snapshot ${SOURCE}/ol/devnet/snapshot/state_ver*
+
 # Use onboard to create all node files
 fork-config:
 	cargo run -p onboard -- fork -u http://167.172.248.37 --prebuilt-genesis ${DATA_PATH}/genesis_from_snapshot.blob

@@ -82,7 +82,6 @@ impl Runnable for ForkCmd {
         if let Some(path) = &self.prebuilt_genesis {
           let tx = gen_tx_from_blob(path).unwrap();
           wp = Some(waypoint::CreateWaypoint::extract_waypoint(tx).unwrap());
-          dbg!(&wp);
         }
 
         let app_config = AppCfg::init_app_configs(
