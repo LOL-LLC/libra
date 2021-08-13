@@ -1,6 +1,6 @@
 //! read-archive
 
-use crate::{read_snapshot, recover::{accounts_into_recovery, LegacyRecovery}};
+use crate::{read_snapshot::{self}, recover::{accounts_into_recovery, LegacyRecovery}};
 use anyhow::{bail, Error, Result};
 use backup_cli::{
     backup_types::state_snapshot::manifest::StateSnapshotBackup,
@@ -147,7 +147,7 @@ pub fn test_accounts_into_recovery() {
         .join("fixtures/state-snapshot/194/state_ver_74694920.0889/");
     let path_man = buf.clone().join("state.manifest");
     println!("Running.....");
-    let backup = read_from_json(&path_man).unwrap();
+    let backup = crate::read_snapshot::read_from_json(&path_man).unwrap();
 
     let account_blobs_futures = accounts_from_snapshot_backup(backup, &path_man);
     let account_blobs = tokio_test::block_on(account_blobs_futures).unwrap();
