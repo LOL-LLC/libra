@@ -6,7 +6,7 @@ use libra_management::{
 };
 
 
-use libra_temppath::TempPath;
+
 use libra_types::{
     access_path::AccessPath,
     account_address::AccountAddress,
@@ -24,15 +24,13 @@ use libra_types::{
     },
     write_set::{WriteOp, WriteSetMut},
 };
-use executor::{
-    db_bootstrapper::{generate_waypoint, maybe_bootstrap, get_balance},
-};
+
 use ol_fixtures::get_persona_mnem;
 use storage_interface::DbReaderWriter;
 
-use libra_vm::LibraVM;
-use libradb::{LibraDB};
-use std::{convert::TryFrom, fs::File, io::Write, io::Read};
+
+
+use std::{convert::TryFrom, fs::File, io::Write};
 use move_core_types::move_resource::MoveResource;
 use ol_keys::{wallet::get_account_from_mnem};
 

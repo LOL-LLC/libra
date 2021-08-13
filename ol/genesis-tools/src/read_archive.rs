@@ -163,9 +163,9 @@ pub fn merge_writeset(mut left: WriteSetMut, right: WriteSetMut) -> Result<Write
 
 #[test]
 pub fn test_accounts_into_recovery() {
-    use libra_types::account_config::{
-      ValidatorConfigResource,
-      BalanceResource
+    use libra_types::{
+      validator_config::ValidatorConfigResource,
+      account_config::BalanceResource
     };
     use move_core_types::move_resource::MoveResource;
     use ol_types::miner_state::MinerStateResource;
