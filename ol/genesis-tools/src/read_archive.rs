@@ -1,60 +1,25 @@
 //! read-archive
 
-use backup_cli::storage::{FileHandle, FileHandleRef};
-use libra_types::access_path::AccessPath;
-use libra_types::account_config::AccountResource;
-use libra_types::account_state::AccountState;
-
-use libra_types::write_set::{WriteOp, WriteSetMut};
 use move_core_types::move_resource::MoveResource;
 use ol_fixtures::get_persona_mnem;
 use ol_keys::wallet::get_account_from_mnem;
-use serde::de::DeserializeOwned;
 use std::convert::TryFrom;
 use std::path::PathBuf;
-
-use std::fs::File;
-
-use std::io::Read;
-
-use libra_config::utils::get_available_port;
 use libra_crypto::HashValue;
 use libra_types::{
-    account_state_blob::AccountStateBlob, ledger_info::LedgerInfoWithSignatures,
-    proof::TransactionInfoWithProof,
-    account_config::BalanceResource, 
-    validator_config::ValidatorConfigResource,
+    account_state_blob::AccountStateBlob,
+    write_set::{WriteOp, WriteSetMut},
+    account_state::AccountState,
+    account_config::AccountResource,
+    access_path::AccessPath,
 };
-use libra_types::{
-    transaction::{Transaction, WriteSetPayload},
-    trusted_state::TrustedState,
-    waypoint::Waypoint,
+use backup_cli::{
+  storage::{FileHandle, FileHandleRef},
+  backup_types::state_snapshot::manifest::StateSnapshotBackup,
+  utils::read_record_bytes::ReadRecordBytes,
 };
-use ol_types::miner_state::MinerStateResource;
-use std::{
-    net::{IpAddr, Ipv4Addr, SocketAddr},
-    sync::Arc,
-};
-
-use backup_cli::backup_types::state_snapshot::manifest::StateSnapshotBackup;
-
-use anyhow::{bail, ensure, Error, Result};
-
+use anyhow::{bail, Error, Result};
 use tokio::{fs::OpenOptions, io::AsyncRead};
-
-use libra_temppath::TempPath;
-use libradb::LibraDB;
-
-use backup_cli::utils::read_record_bytes::ReadRecordBytes;
-
-use backup_service::start_backup_service;
-use tokio::runtime::Runtime;
-
-use executor::db_bootstrapper::{generate_waypoint, maybe_bootstrap};
-use libra_vm::LibraVM;
-use storage_interface::DbReaderWriter;
-
-use crate::generate_genesis;
 use crate::recover::{accounts_into_recovery, LegacyRecovery};
 
 
