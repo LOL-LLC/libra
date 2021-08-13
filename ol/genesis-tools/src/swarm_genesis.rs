@@ -2,7 +2,8 @@
 
 use std::path::PathBuf;
 use anyhow::Error;
-use crate::{fork_genesis::save_genesis, generate_genesis::writeset_to_tx, read_archive::archive_into_swarm_writeset};
+use libra_types::{transaction::{ChangeSet, Transaction, WriteSetPayload}, write_set::WriteSetMut};
+use crate::{fork_genesis::save_genesis, process_snapshot::archive_into_swarm_writeset};
 
 /// Make a recovery genesis blob
 pub async fn make_swarm_genesis(
@@ -13,4 +14,12 @@ pub async fn make_swarm_genesis(
   let gen_tx = writeset_to_tx(ws);
   // save genesis
   save_genesis(gen_tx, genesis_blob_path)
+}
+
+/// WritesetMut into a genesis tx
+fn writeset_to_tx(ws: WriteSetMut) -> Transaction {
+  Transaction::GenesisTransaction(
+    WriteSetPayload::Direct(
+        ChangeSet::new(ws.freeze().unwrap(), vec!())
+    ))
 }

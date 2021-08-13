@@ -4,7 +4,7 @@ use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
 
-use crate::read_archive::{archive_into_recovery, merge_writeset};
+use crate::process_snapshot::{archive_into_recovery, merge_writeset};
 use crate::recover::{
     recover_consensus_accounts, AccountRole, LegacyRecovery, RecoverConsensusAccounts,
 };

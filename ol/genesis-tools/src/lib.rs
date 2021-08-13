@@ -10,8 +10,8 @@
 
 pub mod fetch_archive;
 pub mod fork_daemon;
-pub mod read_archive;
-pub mod generate_genesis;
+pub mod read_snapshot;
 pub mod recover;
 pub mod fork_genesis;
 pub mod swarm_genesis;
+pub mod process_snapshot;
