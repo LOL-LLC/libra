@@ -46,6 +46,7 @@ TODO
 -  [Function `test_helper_get_contiguous`](#0x1_MinerState_test_helper_get_contiguous)
 -  [Function `test_helper_set_rate_limit`](#0x1_MinerState_test_helper_set_rate_limit)
 -  [Function `test_helper_set_epochs_mining`](#0x1_MinerState_test_helper_set_epochs_mining)
+-  [Function `test_helper_set_proofs_in_epoch`](#0x1_MinerState_test_helper_set_proofs_in_epoch)
 -  [Function `test_helper_hash`](#0x1_MinerState_test_helper_hash)
 -  [Function `test_helper_set_weight_vm`](#0x1_MinerState_test_helper_set_weight_vm)
 
@@ -145,7 +146,7 @@ Struct to store information about a VDF proof submitted
 Struct to encapsulate information about the state of a miner
 <code>previous_proof_hash</code>: the hash of their latest proof (used as seed for next proof)
 <code>verified_tower_height</code>: the height of the miner's tower (more proofs -> higher tower)
-<code>latest_epoch_mining</code>: the latest epoch the miner submitted sufficient proofs (see GlobalConstants.epoch_mining_threshold)
+<code>latest_epoch_mining</code>: the latest epoch the miner submitted sufficient proofs (see GlobalConstants.epoch_mining_thres_lower)
 <code>count_proofs_in_epoch</code>: the number of proofs the miner has submitted in the current epoch
 <code>epochs_validating_and_mining</code>: the cumulative number of epochs the miner has been mining above threshold TODO does this actually only apply to validators?
 <code>contiguous_epochs_validating_and_mining</code>: the number of contiguous epochs the miner has been mining above threshold TODO does this actually only apply to validators?
@@ -499,14 +500,17 @@ Permissions: PUBLIC, ANYONE
   // Get a mutable ref <b>to</b> the current state
   <b>let</b> miner_history = borrow_global_mut&lt;<a href="MinerState.md#0x1_MinerState_MinerProofHistory">MinerProofHistory</a>&gt;(miner_addr);
 
+  // <b>return</b> early <b>if</b> the miner is running too fast, no advantage <b>to</b> asics
+  <b>assert</b>(miner_history.count_proofs_in_epoch &lt; <a href="Globals.md#0x1_Globals_get_epoch_mining_thres_upper">Globals::get_epoch_mining_thres_upper</a>(), <a href="../../../../../../move-stdlib/docs/Errors.md#0x1_Errors_invalid_state">Errors::invalid_state</a>(130106));
+
   // If not genesis proof, check hash <b>to</b> ensure the proof continues the chain
   <b>if</b> (steady_state) {
     //If not genesis proof, check hash
-    <b>assert</b>(&proof.challenge == &miner_history.previous_proof_hash, <a href="../../../../../../move-stdlib/docs/Errors.md#0x1_Errors_invalid_state">Errors::invalid_state</a>(130106));
+    <b>assert</b>(&proof.challenge == &miner_history.previous_proof_hash, <a href="../../../../../../move-stdlib/docs/Errors.md#0x1_Errors_invalid_state">Errors::invalid_state</a>(130107));
   };
 
   <b>let</b> valid = <a href="VDF.md#0x1_VDF_verify">VDF::verify</a>(&proof.challenge, &proof.difficulty, &proof.solution);
-  <b>assert</b>(valid, <a href="../../../../../../move-stdlib/docs/Errors.md#0x1_Errors_invalid_argument">Errors::invalid_argument</a>(130107));
+  <b>assert</b>(valid, <a href="../../../../../../move-stdlib/docs/Errors.md#0x1_Errors_invalid_argument">Errors::invalid_argument</a>(130108));
 
   // add the miner <b>to</b> the miner list <b>if</b> not present
   <a href="MinerState.md#0x1_MinerState_increment_miners_list">increment_miners_list</a>(miner_addr);
@@ -601,8 +605,8 @@ Checks to see if miner submitted enough proofs to be considered compliant
 
 
 <pre><code><b>public</b> <b>fun</b> <a href="MinerState.md#0x1_MinerState_node_above_thresh">node_above_thresh</a>(_account: &signer, miner_addr: address): bool <b>acquires</b> <a href="MinerState.md#0x1_MinerState_MinerProofHistory">MinerProofHistory</a> {
-  <b>let</b> miner_history= borrow_global&lt;<a href="MinerState.md#0x1_MinerState_MinerProofHistory">MinerProofHistory</a>&gt;(miner_addr);
-  miner_history.count_proofs_in_epoch &gt; <a href="Globals.md#0x1_Globals_get_mining_threshold">Globals::get_mining_threshold</a>()
+  <b>let</b> miner_history = borrow_global&lt;<a href="MinerState.md#0x1_MinerState_MinerProofHistory">MinerProofHistory</a>&gt;(miner_addr);
+  miner_history.count_proofs_in_epoch &gt; <a href="Globals.md#0x1_Globals_get_epoch_mining_thres_lower">Globals::get_epoch_mining_thres_lower</a>()
 }
 </code></pre>
 
@@ -1254,10 +1258,37 @@ Public Getters ///
 
 
 <pre><code><b>public</b> <b>fun</b> <a href="MinerState.md#0x1_MinerState_test_helper_set_epochs_mining">test_helper_set_epochs_mining</a>(node_addr: address, value: u64)<b>acquires</b> <a href="MinerState.md#0x1_MinerState_MinerProofHistory">MinerProofHistory</a> {
-  <b>assert</b>(<a href="Testnet.md#0x1_Testnet_is_testnet">Testnet::is_testnet</a>()== <b>true</b>, <a href="../../../../../../move-stdlib/docs/Errors.md#0x1_Errors_invalid_state">Errors::invalid_state</a>(130127));
+  <b>assert</b>(<a href="Testnet.md#0x1_Testnet_is_testnet">Testnet::is_testnet</a>()== <b>true</b>, <a href="../../../../../../move-stdlib/docs/Errors.md#0x1_Errors_invalid_state">Errors::invalid_state</a>(130126));
 
   <b>let</b> s = borrow_global_mut&lt;<a href="MinerState.md#0x1_MinerState_MinerProofHistory">MinerProofHistory</a>&gt;(node_addr);
   s.epochs_validating_and_mining = value;
+}
+</code></pre>
+
+
+
+</details>
+
+<a name="0x1_MinerState_test_helper_set_proofs_in_epoch"></a>
+
+## Function `test_helper_set_proofs_in_epoch`
+
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="MinerState.md#0x1_MinerState_test_helper_set_proofs_in_epoch">test_helper_set_proofs_in_epoch</a>(node_addr: address, value: u64)
+</code></pre>
+
+
+
+<details>
+<summary>Implementation</summary>
+
+
+<pre><code><b>public</b> <b>fun</b> <a href="MinerState.md#0x1_MinerState_test_helper_set_proofs_in_epoch">test_helper_set_proofs_in_epoch</a>(node_addr: address, value: u64)<b>acquires</b> <a href="MinerState.md#0x1_MinerState_MinerProofHistory">MinerProofHistory</a> {
+  <b>assert</b>(<a href="Testnet.md#0x1_Testnet_is_testnet">Testnet::is_testnet</a>()== <b>true</b>, <a href="../../../../../../move-stdlib/docs/Errors.md#0x1_Errors_invalid_state">Errors::invalid_state</a>(130126));
+
+  <b>let</b> s = borrow_global_mut&lt;<a href="MinerState.md#0x1_MinerState_MinerProofHistory">MinerProofHistory</a>&gt;(node_addr);
+  s.count_proofs_in_epoch = value;
 }
 </code></pre>
 
