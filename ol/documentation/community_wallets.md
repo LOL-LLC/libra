@@ -66,7 +66,7 @@ NOTE: the ./ is necessary before the app name.
 
 
 ```
-./txs-mac --account 2057BCFB0189B7FD0ABA7244BA271661 --waypoint 81100056:39d95372602fd15afa79cb7fe2f338179a55d8b70576c371b2dcdbb4b47aa41e --url http://167.172.248.37:8080 wallet --community
+./txs-mac --account <YOUR-ACCOUNT> --waypoint 81100056:39d95372602fd15afa79cb7fe2f338179a55d8b70576c371b2dcdbb4b47aa41e --url http://167.172.248.37:8080 wallet --community
 ```
 
 You will be prompted for your mnemonic next.
